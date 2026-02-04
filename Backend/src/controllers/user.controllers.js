@@ -608,9 +608,27 @@ export const sendScheduleMeet = asyncHandler(async (req, res) => {
 
   const to = user.email;
   const subject = "Request for Scheduling a meeting";
-  const message = `${req.user.name} has requested for a meet at ${time} time on ${date} date. Please respond to the request.`;
+  const message = `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #3BB4A1;">📞 Meeting Request</h2>
+    <p><strong>${req.user.name}</strong> has requested for a meet at <strong>${time}</strong> time on <strong>${date}</strong> date.</p>
+    
+    <div style="background-color: #f0f8f7; padding: 15px; border-radius: 5px; margin: 20px 0;">
+      <p style="margin: 5px 0;"><strong>Date:</strong> ${date}</p>
+      <p style="margin: 5px 0;"><strong>Time:</strong> ${time}</p>
+      <p style="margin: 5px 0;"><strong>From:</strong> ${req.user.name}</p>
+    </div>
 
-  await sendMail(to, subject, message);
+    <p>Please respond to the request.</p>
+
+    <hr style="border: none; border-top: 1px solid #ddd; margin: 20px 0;">
+    <p style="color: #666; font-size: 12px;">This is an automated email from SkillSwap. Please do not reply to this email.</p>
+  </div>`;
+
+  const emailResult = await sendMail(to, subject, message);
+
+  if (!emailResult.success) {
+    throw new ApiError(500, `Failed to send email: ${emailResult.error}`);
+  }
 
   return res.status(200).json(new ApiResponse(200, null, "Email sent successfully"));
 });

@@ -45,12 +45,16 @@ const UserProfileDropdown = () => {
           borderRadius: "50%",
           overflow: "hidden",
           marginRight: "10px",
+          backgroundColor: "#e0e0e0",
         }}
       >
         <img
-          src={user?.picture} // Replace with your image URL
+          src={user?.picture || "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToK4qEfbnd-RN82wdL2awn_PMviy_pelocqQ"}
           alt="User Avatar"
           style={{ width: "100%", height: "100%", objectFit: "cover" }}
+          onError={(e) => {
+            e.target.src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcToK4qEfbnd-RN82wdL2awn_PMviy_pelocqQ";
+          }}
         />
       </div>
       {children}
@@ -92,24 +96,27 @@ const UserProfileDropdown = () => {
 };
 
 const Header = () => {
-  const [navUser, setNavUser] = useState(null);
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const [discover, setDiscover] = useState(false);
 
   useEffect(() => {
-    const userInfo = localStorage.getItem("userInfo");
-    if (userInfo) {
+    // Fetch latest user data to ensure picture is up to date
+    const refreshUserData = async () => {
       try {
-        setNavUser(JSON.parse(userInfo));
+        const { data } = await axios.get("/user/registered/getDetails");
+        if (data?.data) {
+          const updatedUser = { ...user, ...data.data };
+          localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+          setUser(updatedUser);
+        }
       } catch (error) {
-        console.error("Error parsing userInfo in Navbar:", error);
-        setNavUser(null);
+        console.log("Error refreshing user data:", error);
       }
-    } else {
-      setNavUser(null);
+    };
+    if (user) {
+      refreshUserData();
     }
-    // console.log("navUser", navUser);
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     const handleUrlChange = () => {
@@ -156,7 +163,7 @@ const Header = () => {
                 <Nav.Link as={Link} to="/" style={{ fontFamily: "Montserrat, sans-serif", color: "#2d2d2d" }}>
                   Home
                 </Nav.Link>
-                {navUser !== null ? (
+                {user !== null ? (
                   <>
                     <Nav.Link
                       as={Link}

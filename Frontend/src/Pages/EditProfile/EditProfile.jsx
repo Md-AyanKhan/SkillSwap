@@ -326,6 +326,11 @@ const EditProfile = () => {
         console.log("form:", form);
         const { data } = await axios.post("/user/registered/saveRegDetails", form);
         toast.success("Details saved successfully");
+        
+        // Update localStorage and context with new user data
+        const updatedUser = { ...user, ...data.data };
+        localStorage.setItem("userInfo", JSON.stringify(updatedUser));
+        setUser(updatedUser);
       } catch (error) {
         console.log(error);
         if (error?.response?.data?.message) {
