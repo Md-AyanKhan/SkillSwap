@@ -38,7 +38,7 @@ To run SkillSwap locally, follow these steps:
 ### Clone the Repo
 
 ```bash
-clone repo
+clone https://github.com/Md-AyanKhan/SkillSwap.git
 cd SkillSwap
 ```
 
